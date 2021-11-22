@@ -116,23 +116,23 @@ $('#submit-forms-clientes').click(function(){
 });
 $(document).on('change', '#estado', function(){  
 
-    let Estado = $('#estado option:selected').attr('data-estado');
+    let estado = $('#estado option:selected').attr('data-est');
    
     $.ajax({
-        url: '/php/modulos/clientes/administrador/code/ajax-clientes.php',
+        url: '/php/modulos/fornecedores/administrador/code/ajax-fornecedores.php',
         type: 'POST',
         data: {
             action_type: 'pegando_cidades',
-            estado: Estado,
+            estado: estado,
             
-        },success(response){   
-             $("#cidade").html(response);
-             console.log(response);
+        }, success(response){   
+            $("#cidade").html(response);
+           
 
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-            console.log(xhr, ajaxOptions, thrownError);
-            $("#msgClima").html('<div class="alert alert-danger fade in"><button class="close" data-dismiss="alert">×</button><i class="fa-fw fa fa-times"></i><strong>ATENÇÃO!</strong> Ocorreu um erro ao tentar enviar a pergunta. Contate o suporte técnico.</div>');
-        }
+       },
+       error: function(xhr, ajaxOptions, thrownError) {
+           console.log(xhr, ajaxOptions, thrownError);
+           $("#msgClima").html('<div class="alert alert-danger fade in"><button class="close" data-dismiss="alert">×</button><i class="fa-fw fa fa-times"></i><strong>ATENÇÃO!</strong> Ocorreu um erro ao tentar enviar a pergunta. Contate o suporte técnico.</div>');
+       }
     });
  });

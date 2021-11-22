@@ -494,7 +494,7 @@ $('.search-cnpj').blur(function () {
                         'Por favor, digite um CNPJ inválido.',
                         'error'
                         ); 
-            } else {
+            } /*else {
                 console.log(data)   
                 if (data.hasOwnProperty('NOME FANTASIA') && data.NOMEFANTASIA !== '') {
                     $('input[name="razao_social"]').val(data.NOMEFANTASIA);
@@ -503,7 +503,7 @@ $('.search-cnpj').blur(function () {
                     $('input[name="nome_fantasia"]').val(data.RAZAOSOCIAL);
                 }
 
-            }
+            } */
         });
     }
 });

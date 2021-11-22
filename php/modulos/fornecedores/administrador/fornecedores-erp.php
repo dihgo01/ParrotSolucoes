@@ -113,12 +113,11 @@ if (isset($_POST['var3']) and trim($_POST['var3']) === 'cadastro') {
                                                                         <td><?php echo $FORNECEDOR->razao_social ?></td>
                                                                         <td><?php echo $FORNECEDOR->nome_fantasia ?></td>
                                                                         <td><?php echo $FORNECEDOR->cnpj ?></td>
-                                                                        <td><?php echo $FORNECEDOR->tel_1 ?></td>
-                                                                        <td><?php if($FORNECEDOR->status === 'Ativo') 
-                                                                            {
-                                                                                echo "<label class='badge badge-success'>$FORNECEDOR->status</label>";
+                                                                        <td><?php echo $FORNECEDOR->forn_tel ?></td>
+                                                                        <td><?php if ($FORNECEDOR->status === 'Ativo') {
+                                                                                echo "<label class='badge badge-success'>$FORNECEDOR->status </label>";
                                                                             } elseif ($FORNECEDOR->status === 'Bloqueado') {
-                                                                                echo "<label class='badge badge-danger'>$FORNECEDOR->status</label>";
+                                                                                echo "<label class='badge badge-danger'>$FORNECEDOR->status </label>";
                                                                             }
                                                                             ?></td>
                                                                         <td>
@@ -133,7 +132,7 @@ if (isset($_POST['var3']) and trim($_POST['var3']) === 'cadastro') {
                                                                     </tr>
                                                                 <?php } ?>
                                                             <?php } ?>
-                                                        </tbody> 
+                                                        </tbody>
                                                         <tfoot>
                                                             <tr>
                                                                 <th>Razão Social</th>
@@ -189,7 +188,7 @@ if (isset($_POST['var3']) and trim($_POST['var3']) === 'cadastro') {
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label class="col-form-label " for="razao_social">CNPJ</label>
-                                                <input type="text" class="form-control field-cnpj" name="cnpj" placeholder="CNPJ" value="<?php echo (isset($current_row->cnpj) ? $current_row->cnpj : '') ?>" autocomplete="off" required="">
+                                                <input type="text" class="form-control search-cnpj field-cnpj" name="cnpj" placeholder="CNPJ" value="<?php echo (isset($current_row->cnpj) ? $current_row->cnpj : '') ?>" autocomplete="off" required="">
                                             </div>
                                             <div class="col-md-3 mb-3">
                                                 <label class="col-form-label" for="razao_social">Inscrição Estadual</label>
@@ -205,23 +204,34 @@ if (isset($_POST['var3']) and trim($_POST['var3']) === 'cadastro') {
                                             </div>
                                             <div class="col-md-3 mb-3">
                                                 <label class="col-form-label" for="porte">Porte da Empresa</label>
-                                                <select class="form-control select2" name='porte' id="inputState" required="">
-                                                    <option value="<?php if($page_start === 'edicao') { 
-                                                    echo (isset($current_row->porte) ? $current_row->porte : ''); }?>" selected>
-                                                    <?php if($page_start === 'edicao') { 
-                                                    echo (isset($current_row->porte) ? $current_row->porte : ''); } else {
-                                                    echo "Selecione";
-                                                    }
-                                                    ?> </option>
-                                                    <?php 
-                                                    $porte = $classesWeb->busca_porte();
-                                                    if (!empty($porte))
-                                                    {
-                                                    foreach($porte as $PORTE) {
-                                                    ?> <option> <?php echo $PORTE->tipo ?> </option>
-                                                    <?php } 
-                                                    } 
-                                                    ?>
+                                                <select class="form-control select2" name='empresa_porte' id="inputState" required>
+                                                    <?php if (isset($current_row->empresa_porte)) {
+                                                        $busca_porte = $classesWeb->busca_empresas_portes();
+                                                        if (isset($busca_porte) && !empty($busca_porte)) {
+                                                            foreach ($busca_porte as $key => $value) {
+                                                                $selected = '';
+                                                                if ($value->hash == $current_row->empresas_portes) {
+                                                                    $selected = 'selected';
+                                                                    echo '<option value="' . $value->hash . '" ' . $selected . '>' . $value->portes . '</option>';
+                                                                }
+                                                                echo '<option value="' . $value->hash . '">' . $value->portes . '</option>';
+                                                            } ?>
+                                                        <?php } else { ?>
+                                                            <option selected="">Nada encontrado</option>
+                                                        <?php } ?>
+
+                                                        <?php } else {
+                                                        $busca_porte = $classesWeb->busca_empresas_portes();
+                                                        //var_dump($busca_estados);
+                                                        if (isset($busca_porte) && !empty($busca_porte)) {
+                                                            echo '<option value="">Selecione</option>';
+                                                            foreach ($busca_porte as $key => $value) {
+                                                                echo '<option value="' . $value->hash . '">' . $value->portes . '</option>';
+                                                            } ?>
+                                                        <?php } else { ?>
+                                                            <option selected="">Nada encontrado</option>
+                                                        <?php } ?>
+                                                    <?php } ?>
                                                 </select>
                                             </div>
                                             <div class="col-md-4 mb-3">
@@ -229,23 +239,21 @@ if (isset($_POST['var3']) and trim($_POST['var3']) === 'cadastro') {
                                                 <input type="text" class="form-control" name="cnae" placeholder="Informe o CNAE principal" value="<?php echo (isset($current_row->cnae) ? $current_row->cnae : '') ?>" autocomplete="off" required="">
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                <label class="col-form-label" for="cnae_secundarios">CNAE Secundários</label> 
+                                                <label class="col-form-label" for="cnae_secundarios">CNAE Secundários</label>
                                                 <div class="d-flex">
-                                                    <input type="text" class="form-control" name="cnae_secundarios" placeholder="Informe os CNAEs secundários" value="<?php echo (isset($current_row->cnae_secundarios) ? $current_row->cnae_secundarios : '') ?>" autocomplete="off" required="">
-                                                    <a href="#"  data-toggle="modal" data-target="#exampleModalCenterCNAE" id="cnaes" name="cnaes" class="btn-add btn-primary modal-fade"><i data-feather="plus" ></i></a>   
+                                                    <input type="text" class="form-control" name="cnae_secundarios[]" id="cnae_secundarios" placeholder="Informe os CNAEs secundários" value="<?php echo (isset($current_row->cnae_secundarios) ? $current_row->cnae_secundarios : '') ?>" autocomplete="off" required="">
+                                                    <a href="#" data-toggle="modal" data-target="#exampleModalCenterCNAE" id="cnaes_secundarios" name="cnaes_secundarios" class="btn-add btn-primary modal-fade"><i data-feather="plus"></i></a>
                                                     <div class="form-group modal fade" id="exampleModalCenterCNAE" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterCNAE" aria-hidden="true">
                                                         <div class="modal-dialog modal-dialog-centered" role="document">
                                                             <div class="modal-content">
                                                                 <div class="modal-header">
                                                                     <h5 class="modal-title">Adicionar CNAEs </h5>
-                                                                    <button class="close btn-primary btn-add" type="button" data-dismiss="modal" id="cnaes_close" aria-label="Close"><span aria-hidden="true">X</span></button>
+                                                                    <button class="close btn-primary btn-add cnaes_close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">X</span></button>
                                                                 </div>
-                                                                <div class="modal-body">
-                                                                    <p>Descrição da política de privacidade.</p>
-                                                                </div>
+                                                                <div class="modal-body cnae-modal"> </div>
                                                                 <div class="modal-footer">
-                                                                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
-                                                                    <button class="btn btn-primary" type="button">Save changes</button>
+                                                                    <button class="btn btn-secondary cnaes_close" type="button" data-dismiss="modal">Fechar</button>
+                                                                    <button class="btn btn-primary cnaes_close" type="button">Salvar</button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -253,72 +261,86 @@ if (isset($_POST['var3']) and trim($_POST['var3']) === 'cadastro') {
                                                 </div>
                                             </div>
                                             <div class="form-group col-md-4 mb-3">
-                                                <label class="col-form-label" for="nat_juridica">Natureza Juridica</label>
-                                                <select class="form-control  select2" name='nat_juridica' id="inputState" placeholder="Selecione" required="">
-                                                    <option value="<?php if($page_start === 'edicao') { 
-                                                        echo (isset($current_row->nat_juridica) ? $current_row->nat_juridica : ''); }?>" selected>
-                                                        <?php if($page_start === 'edicao') { 
-                                                        echo (isset($current_row->nat_juridica) ? $current_row->nat_juridica : ''); } else {
-                                                        echo "Selecione";
-                                                        }
-                                                        ?> </option>
-                                                    <?php 
-                                                        $natureza_juridica = $classesWeb->busca_nat_juridica();
-                                                        if (!empty($natureza_juridica))
-                                                        {
-                                                        foreach($natureza_juridica as $NATUREZA) {
-                                                        ?> <option> <?php echo $NATUREZA->tipo ?> </option>
-                                                        <?php } 
-                                                        } 
-                                                    ?>
+                                                <label class="col-form-label" for="natureza_juridica">Natureza Jurídica</label>
+                                                <select class="form-control  select2" name='natureza_juridica' id="inputState" placeholder="Selecione" required>
+                                                    <?php if (isset($current_row->natureza_juridica)) {
+                                                        $busca_nat = $classesWeb->busca_natureza_juridica();
+                                                        if (isset($busca_nat) && !empty($busca_nat)) {
+                                                            foreach ($busca_nat as $key => $value) {
+                                                                $selected = '';
+                                                                if ($value->hash == $current_row->natureza_juridica) {
+                                                                    $selected = 'selected';
+                                                                    echo '<option value="' . $value->hash . '" ' . $selected . '>' . $value->tipo . '</option>';
+                                                                }
+                                                                echo '<option value="' . $value->hash . '">' . $value->tipo . '</option>';
+                                                            } ?>
+                                                        <?php } else { ?>
+                                                            <option selected="">Nada encontrado</option>
+                                                        <?php } ?>
+
+                                                        <?php } else {
+
+                                                        $busca_nat = $classesWeb->busca_natureza_juridica();
+                                                        //var_dump($busca_estados);
+                                                        if (isset($busca_nat) && !empty($busca_nat)) {
+                                                            echo '<option value="">Selecione</option>';
+                                                            foreach ($busca_nat as $key => $value) {
+                                                                echo '<option value="' . $value->hash . '">' . $value->tipo . '</option>';
+                                                            } ?>
+                                                        <?php } else { ?>
+                                                            <option selected="">Nada encontrado</option>
+                                                        <?php } ?>
+                                                    <?php } ?>
                                                 </select>
                                             </div>
+
                                             <div class="col-md-4 mb-3">
-                                                <label class="col-form-label" for="razao_social">E-mail</label>
+                                                <label class="col-form-label" for="email">E-mail</label>
                                                 <div class="d-flex">
-                                                <input type="text" class="form-control" name="email" placeholder="E-mail" value="<?php echo (isset($current_row->email) ? $current_row->email : '') ?>" autocomplete="off" required="">
-                                                    <a href="#"  data-toggle="modal" data-target="#exampleModalCenterEmails" id="emails" name="emails" class="btn-add btn-primary modal-fade"><i data-feather="plus" ></i></a>   
+                                                    <input type="text" class="form-control mb-3" name="email[]" id="email" placeholder="E-mail" value=" <?php echo (isset($current_row->email) ?: '') ?> " autocomplete="off" required="">
+                                                    <a href="#" data-toggle="modal" data-target="#exampleModalCenterEmails" id="emails" name="emails" class="btn-add btn-primary modal-fade"><i data-feather="plus"></i></a>
                                                     <div class="form-group modal fade" id="exampleModalCenterEmails" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterEmails" aria-hidden="true">
                                                         <div class="modal-dialog modal-dialog-centered" role="document">
                                                             <div class="modal-content">
                                                                 <div class="modal-header">
                                                                     <h5 class="modal-title">Adicionar E-mails </h5>
-                                                                    <button class="close btn-primary btn-add" type="button" data-dismiss="modal" id="emails_close" aria-label="Close"><span aria-hidden="true">X</span></button>
+                                                                    <button class="close btn-primary btn-add emails_close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">X</span></button>
                                                                 </div>
-                                                                <div class="modal-body">
-                                                                    <p>Descrição da política de privacidade.</p>
-                                                                </div>
+                                                                <div class="modal-body email-modal"></div>
                                                                 <div class="modal-footer">
-                                                                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
-                                                                    <button class="btn btn-primary" type="button">Save changes</button>
+                                                                    <button class="btn btn-secondary emails_close" type="button" data-dismiss="modal">Fechar</button>
+                                                                    <button class="btn btn-primary emails_close" type="button">Salvar</button>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 mb-5">
-                                                <label class="col-form-label " for="razao_social">Celular</label>
-                                                <input type="text" class="form-control field-phone" name="tel_2" placeholder="Informe o celular com DDD" value="<?php echo (isset($current_row->tel_2) ? $current_row->tel_2 : '') ?>" autocomplete="off" required="">
-                                            </div>
                                             <div class="col-md-4 mb-3">
-                                                <label class="col-form-label " for="razao_social">Telefone</label>
+                                                <label class="col-form-label" for="telefone">Telefone</label>
                                                 <div class="d-flex">
-                                                    <input type="text" class="form-control field-phone" name="tel_1" placeholder="Informe o telefone com DDD" value="<?php echo (isset($current_row->tel_1) ? $current_row->tel_1 : '') ?>" autocomplete="off" required="">
-                                                    <a href="#"  data-toggle="modal" data-target="#exampleModalCenterTelefone" id="telefones" name="telefones" class="btn-add btn-primary modal-fade"><i data-feather="plus" ></i></a>   
+                                                    <input type="text" class="form-control mb-3 field-phone" name="telefone[]" id="telefone" placeholder="Informe o telefone com DDD" value="<?php echo (isset($current_row->telefone) ? $current_row->telefone : '') ?>" autocomplete="off" required="">
+                                                    <a href="#" data-toggle="modal" data-target="#exampleModalCenterTelefone" id="telefones" name="telefones" class="btn-add btn-primary modal-fade"><i data-feather="plus"></i></a>
                                                     <div class="form-group modal fade" id="exampleModalCenterTelefone" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTelefone" aria-hidden="true">
                                                         <div class="modal-dialog modal-dialog-centered" role="document">
                                                             <div class="modal-content">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title">Adicionar Telefones </h5>
-                                                                    <button class="close btn-primary btn-add" type="button" data-dismiss="modal" id="telefones_close" aria-label="Close"><span aria-hidden="true">X</span></button>
+                                                                    <h5 class="modal-title">Adicione o Telefone </h5>
+                                                                    <button class="close btn-primary btn-add telefones_close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">X</span></button>
                                                                 </div>
-                                                                <div class="modal-body">
-                                                                    <p>Descrição da política de privacidade.</p>
+                                                                <div class="modal-body tel-modal">
+                                                                    <div class="mb-3">
+                                                                        <label class="col-form-label" for="nome_responsavel">Nome do Responsável </label>
+                                                                        <input type="text" class="form-control" name="nome_responssavel" placeholder="Nome do Responsável" value="<?php echo (isset($current_row->nome_fantasia) ? $current_row->nome_fantasia : '') ?>" autocomplete="off" required="">
+                                                                    </div>
+                                                                    <div class=" mb-3">
+                                                                        <label class="col-form-label" for="setor">Setor</label>
+                                                                        <input type="text" class="form-control" name="setor" placeholder="Setor" value="<?php echo (isset($current_row->nome_fantasia) ? $current_row->nome_fantasia : '') ?>" autocomplete="off" required="">
+                                                                    </div>
                                                                 </div>
                                                                 <div class="modal-footer">
-                                                                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
-                                                                    <button class="btn btn-primary" type="button">Save changes</button>
+                                                                    <button class="btn btn-secondary telefones_close" type="button" data-dismiss="modal">Fechar</button>
+                                                                    <button class="btn btn-primary telefones_close" type="button">Salvar</button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -327,90 +349,112 @@ if (isset($_POST['var3']) and trim($_POST['var3']) === 'cadastro') {
                                             </div>
 
                                             <h6 class="mb-3">Endereço</h6>
-                                            <div class="col-md-2">
+                                            <div class="col-md-2 mb-3">
                                                 <label class="col-form-label ">CEP</label>
                                                 <input class="form-control search-cep field-cep" type="text" name="cep" placeholder="CEP" value="<?php echo (isset($current_row->cep) ? $current_row->cep : '') ?>" autocomplete="off" required>
                                             </div>
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-5 mb-3">
                                                 <label class="col-form-label" for="endereco">Endereço</label>
                                                 <input type="text" class="form-control" name="logradouro" placeholder="Endereço" value="<?php echo (isset($current_row->endereco) ? $current_row->endereco : '') ?>" autocomplete="off" required="">
                                             </div>
-                                            <div class="col-md-1 mb-3">
-                                                <label class="col-form-label" for="endereco">Numero</label>
+                                            <div class="col-md-2 mb-3">
+                                                <label class="col-form-label" for="endereco">Número</label>
                                                 <input type="text" class="form-control" name="numero" placeholder="n°" value="<?php echo (isset($current_row->numero) ? $current_row->numero : '') ?>" autocomplete="off" required="">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="col-form-label">Complemento</label>
-                                                <input class="form-control" type="text" name="complemento" placeholder="Apartamento, bloco, quadra, lote etc." value="<?php echo (isset($current_row->complemento) ? $current_row->complemento : '') ?>" autocomplete="off">
+                                                <input class="form-control" type="text" name="complemento" placeholder="Apartamento, Bloco, Fundos " value="<?php echo (isset($current_row->complemento) ? $current_row->complemento : '') ?>" autocomplete="off">
                                             </div>
                                             <div class="form-group col-md-3">
                                                 <label class="col-form-label">Bairro</label>
                                                 <input class="form-control" type="text" name="bairro" placeholder="Bairro" value="<?php echo (isset($current_row->bairro) ? $current_row->bairro : '') ?>" autocomplete="off" required>
                                             </div>
-                                            <div class="form-group col-md-3 mb-5">
+                                            <div class="form-group col-md-3 mb-3">
                                                 <label class="col-form-label" for="inputState">Pais</label>
-                                                <select class="form-control" name="pais" id="inputState" required="">
-                                                    <option value="<?php if($page_start === 'edicao') { 
-                                                    echo (isset($current_row->pais) ? $current_row->pais : ''); }?>" selected>
-                                                    <?php if($page_start === 'edicao') { 
-                                                    echo (isset($current_row->pais) ? $current_row->pais : ''); } else {
-                                                    echo "Selecione";
-                                                    }
-                                                    ?> </option>
-                                                    <?php 
-                                                    $pais = $classesWeb->busca_pais();
-                                                    if (!empty($pais))
-                                                    {
-                                                    foreach($pais as $PAIS) {
-                                                    ?> <option> <?php echo $PAIS->nome_pt ?> </option>
-                                                    <?php } 
-                                                    } 
-                                                    ?>
+                                                <select class="form-control" name="pais" id="pais" required>
+                                                    <?php if (isset($current_row->empresa_porte)) {
+                                                        $busca_pais = $classesWeb->busca_pais();
+                                                        if (isset($busca_pais) && !empty($busca_pais)) {
+                                                            foreach ($busca_pais as $key => $value) {
+                                                                $selected = '';
+                                                                if ($value->hash == $current_row->pais) {
+                                                                    $selected = 'selected';
+                                                                    echo '<option value="' . $value->hash . '" ' . $selected . '>' . $value->nome_pt . '</option>';
+                                                                }
+                                                                echo '<option value="' . $value->hash . '">' . $value->nome_pt . '</option>';
+                                                            } ?>
+                                                        <?php } else { ?>
+                                                            <option selected="">Nada encontrado</option>
+                                                        <?php } ?>
+                                                        <?php } else {
+                                                        $busca_pais = $classesWeb->busca_pais();
+                                                        //var_dump($busca_estados);
+                                                        if (isset($busca_pais) && !empty($busca_pais)) {
+                                                            echo '<option value="">Selecione</option>';
+                                                            foreach ($busca_pais as $key => $value) {
+                                                                echo '<option data-estado="' . $value->id . '" value="' . $value->hash . '">' . $value->nome_pt . '</option>';
+                                                            } ?>
+                                                        <?php } else { ?>
+                                                            <option selected="">Nada encontrado</option>
+                                                        <?php } ?>
+                                                    <?php } ?>
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-3 mb-3">
                                                 <label class="col-form-label" for="inputState">Estado</label>
-                                                <select class="form-control data-estado select2" name="estado" id="estado" placeholder="Selecione" required="">
-                                                <option value="<?php if($page_start === 'edicao') { 
-                                                        echo (isset($current_row->estado) ? $current_row->estado : ''); }?>" selected>
-                                                        <?php if($page_start === 'edicao') { 
-                                                        echo (isset($current_row->estado) ? $current_row->estado : ''); } else {
-                                                        echo "Selecione";
-                                                        } ?> 
-                                                </option>
-                                                    <?php 
-                                                        $estado = $classesWeb->busca_estado();
-                                                        if (!empty($estado))
-                                                        {
-                                                        foreach($estado as $ESTADO) {
-                                                        ?> <option> <?php echo $ESTADO->nome ?> </option>
-                                                        <?php } 
-                                                        } 
-                                                    ?>
+                                                <select class="form-control data-estado select2" name="estado" id="estado" placeholder="Selecione" required>
+                                                    <?php if (isset($current_row->estado)) {
+                                                        $busca_estado = $classesWeb->busca_estado();
+                                                        if (isset($busca_estado) && !empty($busca_estado)) {
+                                                            foreach ($busca_estado as $key => $value) {
+                                                                $selected = '';
+                                                                if ($value->hash == $current_row->estado) {
+                                                                    $selected = 'selected';
+                                                                    echo '<option data-est="' . $value->id . '" data-estado="' . $value->uf . '" value="' . $value->hash . '" ' . $selected . '>' . $value->nome . '</option>';
+                                                                }
+                                                                echo '<option data-est="' . $value->id . '" data-estado="' . $value->uf . '" value="' . $value->hash . '">' . $value->nome . '</option>';
+                                                            } ?>
+                                                        <?php } else { ?>
+                                                            <option selected="">Nada encontrado</option>
+                                                        <?php } ?>
+                                                        <?php } else {
+                                                        $busca_estados = $classesWeb->busca_estado();
+                                                        //var_dump($busca_estados);
+                                                        if (isset($busca_estados) && !empty($busca_estados)) {
+                                                            echo '<option value="">Selecione</option>';
+                                                            foreach ($busca_estados as $key => $value) {
+                                                                echo '<option data-est="' . $value->id . '" data-estado="' . $value->uf . '" value="' . $value->hash . '">' . $value->nome . '</option>';
+                                                            } ?>
+                                                        <?php } else { ?>
+                                                            <option selected="">Nada encontrado</option>
+                                                        <?php } ?>
+                                                    <?php } ?>
                                                 </select>
                                             </div>
+
                                             <div class="form-group col-md-3 mb-3">
                                                 <label class="col-form-label" for="inputState">Cidade</label>
-                                                <select class="form-control select2" name="cidade" id="cidade" placeholder="Selecione" required="">
-                                                    <option value="<?php if($page_start === 'edicao') { 
-                                                    echo (isset($current_row->cidade) ? $current_row->cidade : ''); }?>" selected>
-                                                    <?php if($page_start === 'edicao') { 
-                                                    echo (isset($current_row->cidade) ? $current_row->cidade : ''); } else {
-                                                    echo "Selecione";
-                                                    }
-                                                    ?> </option>
-                                                    <?php 
-                                                    $cidade = $classesWeb->busca_cidade();
-                                                    if (!empty($cidade))
-                                                    {
-                                                    foreach($cidade as $CIDADE) {
-                                                    ?> <option> <?php echo $CIDADE->nome ?> </option>
-                                                    <?php } 
-                                                    } 
-                                                    ?>
+                                                <select class="form-control select2" name="cidade" id="cidade" placeholder="Selecione" required>
+                                                    <?php if (isset($current_row->cidade)) {
+                                                        $busca_cidade = $classesWeb->busca_cidade();
+                                                        if (isset($busca_cidade) && !empty($busca_cidade)) {
+                                                            foreach ($busca_cidade as $key => $value) {
+                                                                $selected = '';
+                                                                if ($value->hash == $current_row->cidade) {
+                                                                    $selected = 'selected';
+                                                                    echo '<option value="' . $value->hash . '" ' . $selected . '>' . $value->nome . '</option>';
+                                                                }
+                                                            } ?>
+                                                        <?php } else { ?>
+                                                            <option selected="">Nada encontrado</option>
+                                                        <?php } ?>
+                                                    <?php } else { ?>
+                                                        <option selected="">Selecione </option>
+
+                                                    <?php } ?>
                                                 </select>
                                             </div>
-                                            
+
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <button id="submit-forms" class="btn btn-primary" type="submit"><?php echo ($page_start === 'cadastro' ? 'Cadastrar' : 'Atualizar') ?></button>

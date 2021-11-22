@@ -18,210 +18,274 @@ if (isset($_GET['action_type'])) {
 if ($acao === 'gestao_de_fornecedores') {
     if ($_GET['type'] === 'new') {
         /**
-         * Insere um novo fornecedor
+         * Insere um novo Fornecedor
          */
-        $email = $_POST['email'];
-        $data = $_POST['dt_abertura'];
-        $data_abertura = implode('-', array_reverse(explode('/', $data)));  
 
-        if($_GET['type'] === 'new')
-        {
-        $consulta_email = $classesWeb->consulta_email($email, 'fornecedores');
+        $hash_cnae_secundarios = gerar_hash();
+        $hash_email = gerar_hash();
+        $hash_telefone = gerar_hash();
+
+        /*
+         * Inserir data formatada no banco
+         */
+        $data_nascimento = $_POST['dt_nascimento'];
+        $tratamento_data_nascimento = implode('-', array_reverse(explode('/', $data_nascimento)));
+
+        $campos = array(
+            'hash',
+            'razao_social',
+            'nome_fantasia',
+            'dt_abertura',
+            'cnpj',
+            'inscricao_estadual',
+            'inscricao_municipal',
+            'empresa_porte',
+            'cnae',
+            'cnae_secundarios',
+            'natureza_juridica',
+            'email',
+            'telefone',
+            'cep',
+            'endereco',
+            'numero',
+            'complemento',
+            'bairro',
+            'cidade',
+            'estado',
+            'pais',
+            'dt_cadastro',
+            'status',
+        );
+
+        $valores = array(
+            gerar_hash(),
+            $_POST['razao_social'],
+            $_POST['nome_fantasia'],
+            $tratamento_data_nascimento ,
+            $_POST['cnpj'],
+            $_POST['inscricao_estadual'],
+            $_POST['inscricao_municipal'],
+            $_POST['empresa_porte'],
+            $_POST['cnae'],
+            $hash_cnae_secundarios,
+            $_POST['natureza_juridica'],
+            $hash_email,
+            $hash_telefone,
+            $_POST['cep'],
+            $_POST['logradouro'],
+            $_POST['numero'],
+            $_POST['complemento'],
+            $_POST['bairro'],
+            $_POST['cidade'],
+            $_POST['estado'],
+            $_POST['pais'],
+            date("Y-m-d H:i:s"),
+            'Ativo'
+        );
+        foreach ($campos as $CAMPOS_INSERT) {
+            $variaveis[] = '?';
         }
-        //var_dump($consulta_email);
-        if (isset($consulta_email) && (int)$consulta_email > 0) {
+
+        /*
+         * Insere os dados na tabela cnae forncedores
+         */
+
+        if (isset($_POST['cnae_secundarios']) && array($_POST['cnae_secundarios']) && !empty($_POST['cnae_secundarios'])) {
+            $variavel = array();
+            $campo = array('hash', 'fornecedor_nome', 'cnae_secundarios', 'status');
+            foreach ($campo as $CAMPOS_INSERT) {
+                $variavel[] = '?';
+            }
+            //var_dump($_POST['cnae_secundarios']);
+            foreach ($_POST['cnae_secundarios'] as $VALUE) {
+
+                $valor = array($hash_cnae_secundarios, $_POST['nome_fantasia'], $VALUE, 'Ativo');
+                $cnae_sec = $classesWeb->query_insert(implode(', ', $campo), implode(', ', $variavel), $valor, 'fornecedores_cnae');
+            };
+        }
+
+        /*
+         * Insere os dados na tabela email forncedores
+         */
+
+        if (isset($_POST['email']) && array($_POST['email']) && !empty($_POST['email'])) {
+            $variavel = array();
+            $campo = array('hash', 'email', 'status');
+            foreach ($campo as $CAMPOS_INSERT) {
+                $variavel[] = '?';
+            }
+            //var_dump($_POST['cnae_secundarios']);
+            foreach ($_POST['email'] as $VALUE) {
+
+                $valor = array($hash_email, $VALUE, 'Ativo');
+                $email = $classesWeb->query_insert(implode(', ', $campo), implode(', ', $variavel), $valor, 'fornecedores_email');
+            };
+        }
+
+        /*
+         * Insere os dados na tabela telefones fornecedores
+         */
+
+        if (isset($_POST['telefone']) && array($_POST['telefone']) && !empty($_POST['telefone'])) {
+            $variavel = array();
+            $campo = array('hash', 'setor', 'nome_responsavel', 'telefone', 'status');
+            foreach ($campo as $CAMPOS_INSERT) {
+                $variavel[] = '?';
+            }
+            //var_dump($_POST['cnae_secundarios']);
+            foreach ($_POST['telefone'] as $VALUE) {
+
+                $valor = array($hash_telefone, $_POST['setor'], $_POST['nome_responssavel'], $VALUE, 'Ativo');
+                $telefone = $classesWeb->query_insert(implode(', ', $campo), implode(', ', $variavel), $valor, 'fornecedores_telefone');
+            };
+        }
+
+
+        $insert = $classesWeb->query_insert(implode(', ', $campos), implode(', ', $variaveis), $valores, 'fornecedores');
+        if ((int) $insert > 0) {
             echo json_encode(array(
-                'status' => 'Oops!',
-                'message' => 'E-mail já cadastrado',
-                'type' => 'close'
+                'status' => 'OK',
+                'message' => 'Fornecedor cadastrado com sucesso.',
+                'type' => 'redirect',
+                'url' => WEBURL . 'gerenciamento/fornecedores'
             ));
         } else {
-            $campos = array(
-                'hash',
-                'razao_social',
-                'nome_fantasia',
-                'dt_abertura',
-                'cnpj',
-                'inscricao_estadual',
-                'inscricao_municipal',
-                'porte',
-                'cnae',
-                'cnae_secundarios',
-                'nat_juridica',
-                'email',
-                'tel_1',
-                'tel_2',
-                'cep',
-                'endereco',
-                'numero',
-                'complemento',
-                'bairro',
-                'cidade',
-                'estado',
-                'pais',
-                'dt_cadastro',
-                'dt_atualizacao',
-                'dt_exclusao',
-                'status',
-            );
-
-            $valores = array(
-                gerar_hash(),
-                $_POST['razao_social'],
-                $_POST['nome_fantasia'],
-                $data_abertura,
-                $_POST['cnpj'],
-                $_POST['inscricao_estadual'],
-                $_POST['inscricao_municipal'],
-                $_POST['porte'],
-                $_POST['cnae'],
-                $_POST['cnae_secundarios'],
-                $_POST['nat_juridica'],
-                $_POST['email'],
-                $_POST['tel_1'],
-                $_POST['tel_2'],
-                $_POST['cep'],
-                $_POST['logradouro'],
-                $_POST['numero'],
-                $_POST['complemento'],
-                $_POST['bairro'],
-                $_POST['cidade'],
-                $_POST['estado'],
-                $_POST['pais'],
-                date("Y-m-d H:i:s"),
-                date("Y-m-d H:i:s"),
-                date("Y-m-d H:i:s"),
-                'Ativo'
-            );
-            foreach ($campos as $CAMPOS_INSERT) {
-                $variaveis[] = '?';
-            }
-
-            $insert = $classesWeb->query_insert(implode(', ', $campos), implode(', ', $variaveis), $valores, 'fornecedores');
-            if ((int) $insert > 0) {
-                echo json_encode(array(
-                    'status' => 'OK',
-                    'message' => 'Fornecedores cadastrado com sucesso.',
-                    'type' => 'redirect',
-                    'url' => WEBURL . 'gerenciamento/fornecedores'
-                ));
-            } else {
-                echo json_encode(array(
-                    'status' => 'ERROR',
-                    'message' => 'Ocorreu um erro durante o processo. Tente novamente.',
-                    'type' => 'close'
-                ));
-            }
+            echo json_encode(array(
+                'status' => 'ERROR',
+                'message' => 'Ocorreu um erro durante o processo. Tente novamente.',
+                'type' => 'close'
+            ));
         }
     } else {
 
         /**
-         * Atualiza um fornecedor
+         * Atualiza um fornecedor erp
          */
 
-        $email = $_POST['email'];
-        if($_GET['type'] === 'new')
-        {
-        $consulta_email = $classesWeb->consulta_email($email, 'fornecedores');
+        $hash_cnae_secundarios = $_POST['cnae_secundarios'];
+        $hash_email = $_POST['email'];
+        $hash_telefone = $_POST['telefone'];
+
+         /*
+         * Inserir data formatada no banco
+         */
+        $data_nascimento = $_POST['dt_nascimento'];
+        $tratamento_data_nascimento = implode('-', array_reverse(explode('/', $data_nascimento)));
+       
+
+        $campos = array(
+            'razao_social',
+            'nome_fantasia',
+            'dt_abertura',
+            'cnpj',
+            'inscricao_estadual',
+            'inscricao_municipal',
+            'empresa_porte',
+            'cnae',
+            'natureza_juridica',
+            'cep',
+            'endereco',
+            'numero',
+            'complemento',
+            'bairro',
+            'cidade',
+            'estado',
+            'pais',
+            'dt_atualizacao',
+        );
+
+
+        $valores = array(
+            $_POST['razao_social'],
+            $_POST['nome_fantasia'],
+            $tratamento_data_nascimento,
+            $_POST['cnpj'],
+            $_POST['inscricao_estadual'],
+            $_POST['inscricao_municipal'],
+            $_POST['empresa_porte'],
+            $_POST['cnae'],
+            $_POST['natureza_juridica'],
+            $_POST['cep'],
+            $_POST['logradouro'],
+            $_POST['numero'],
+            $_POST['complemento'],
+            $_POST['bairro'],
+            $_POST['cidade'],
+            $_POST['estado'],
+            $_POST['pais'],
+            date("Y-m-d H:i:s"),
+        );
+
+        for ($i = 0; $i < (int) sizeof($campos); $i++) {
+            $campos[$i] = $campos[$i] . ' = ?';
         }
-        //var_dump($consulta_email);
-        if (isset($consulta_email) && (int)$consulta_email > 0) {
+
+        if (isset($_POST['cnae_secundarios']) && ($_POST['cnae_secundarios'])  && !empty($_POST['cnae_secundarios'])) {
+            $variavel = array();
+            $campo = array('hash', 'fornecedor_nome', 'cnae_secundarios', 'status');
+            foreach ($campo as $CAMPOS_INSERT) {
+                $variavel[] = '?';
+            }
+            //var_dump($_POST['cnae_secundarios']);
+            foreach ($_POST['cnae_secundarios'] as $VALUE) {
+
+                $valor = array($hash_cnae_secundarios, $_POST['nome_fantasia'], $VALUE, 'Ativo');
+                $cnae_sec = $classesWeb->query_insert(implode(', ', $campo), implode(', ', $variavel), $valor, 'fornecedores_cnae');
+            };
+        }
+
+
+
+        $update = $classesWeb->query_update(implode(', ', $campos), $valores, 'fornecedores', 'hash = "' . $_GET['key'] . '"');
+        if ((int) $update > 0) {
             echo json_encode(array(
-                'status' => 'Oops!',
-                'message' => 'E-mail já cadastrado',
-                'type' => 'close'
+                'status' => 'OK',
+                'message' => 'Fornecedor alterado com sucesso.',
+                'type' => 'redirect',
+                'url' => WEBURL . 'gerenciamento/fornecedores'
             ));
         } else {
-            $campos = array(
-                'hash',
-                'razao_social',
-                'nome_fantasia',
-                'dt_abertura',
-                'cnpj',
-                'inscricao_estadual',
-                'inscricao_municipal',
-                'porte',
-                'cnae',
-                'cnae_secundarios',
-                'nat_juridica',
-                'email',
-                'tel_1',
-                'tel_2',
-                'cep',
-                'endereco',
-                'numero',
-                'complemento',
-                'bairro',
-                'cidade',
-                'estado',
-                'pais',
-                'dt_cadastro',
-                'dt_atualizacao',
-                'dt_exclusao',
-                'status',
-            );
-            for ($i = 0; $i < (int) sizeof($campos); $i++) {
-                $campos[$i] = $campos[$i] . ' = ?';
-            }
-
-            $data = $_POST['dt_abertura'];
-            $data_abertura = implode('-', array_reverse(explode('/', $data)));  
-
-            $valores = array(
-                gerar_hash(),
-                $_POST['razao_social'],
-                $_POST['nome_fantasia'],
-                $data_abertura,
-                $_POST['cnpj'],
-                $_POST['inscricao_estadual'],
-                $_POST['inscricao_municipal'],
-                $_POST['porte'],
-                $_POST['cnae'],
-                $_POST['cnae_secundarios'],
-                $_POST['nat_juridica'],
-                $_POST['email'],
-                $_POST['tel_1'],
-                $_POST['tel_2'],
-                $_POST['cep'],
-                $_POST['logradouro'],
-                $_POST['numero'],
-                $_POST['complemento'],
-                $_POST['bairro'],
-                $_POST['cidade'],
-                $_POST['estado'],
-                $_POST['pais'],
-                date("Y-m-d H:i:s"),
-                date("Y-m-d H:i:s"),
-                date("Y-m-d H:i:s"),
-                'Ativo'
-            );
-
-            $update = $classesWeb->query_update(implode(', ', $campos), $valores, 'fornecedores', 'hash = "' . $_GET['key'] . '"');
-            if ((int) $update > 0) {
-                echo json_encode(array(
-                    'status' => 'OK',
-                    'message' => 'Cadastro alterado com sucesso.',
-                    'type' => 'redirect',
-                    'url' => WEBURL . 'gerenciamento/fornecedores'
-                ));
-            } else {
-                echo json_encode(array(
-                    'status' => 'ERROR',
-                    'message' => 'Ocorreu um erro durante o processo. Tente novamente.',
-                    'type' => 'close'
-                ));
-            }
+            echo json_encode(array(
+                'status' => 'ERROR',
+                'message' => 'Ocorreu um erro durante o processo. Tente novamente.',
+                'type' => 'close'
+            ));
         }
     }
 }
 
+if ($acao === 'pegando_estados') {
 
+    $busca_estados = $classesWeb->busca_estado_por_pais($_POST['id_pais']);
+    if ((int) $busca_estados > 0) {
+        echo json_encode(array(
+            'data' => $busca_estados,
+            'status' => 'OK',
+        ));
+    } else {
+        echo json_encode(array(
+            'status' => 'ERROR',
+            'message' => 'Selecione um país.',
+            'type' => 'close'
+        ));
+    }
+}
 
 if ($acao === 'pegando_cidades') {
 
     $busca_cidade = $classesWeb->busca_cidade_por_estado($_POST['estado']);
     //var_dump($busca_cidade);
-    foreach ($busca_cidade as $key => $value) {
-        echo '<option data-cidade="' . $value->uf . '" value="' . $value->nome . '">' . $value->nome . '</option>';
+    if ((int) $busca_cidade > 0) {
+        echo '<option value="">Selecione</option>';
+        foreach ($busca_cidade as $key => $value) {
+
+            echo '<option data-cidade="' . $value->nome . '" value="' . $value->hash . '">' . $value->nome . '</option>';
+        }
+    } else {
+        echo json_encode(array(
+            'status' => 'ERROR',
+            'message' => 'Selecione um país.',
+            'type' => 'close'
+        ));
     }
 }

@@ -40,24 +40,24 @@ $('#submit-forms').click(function(){
 
 $(document).on('change', '#estado', function(){  
 
-    let Estado = $('#estado option:selected').attr('data-estado');
+    let estado = $('#estado option:selected').attr('data-est');
    
     $.ajax({
         url: '/php/modulos/fornecedores/administrador/code/ajax-fornecedores.php',
         type: 'POST',
         data: {
             action_type: 'pegando_cidades',
-            estado: Estado,
+            estado: estado,
             
-        },success(response){   
-             $("#cidade").html(response);
-             console.log(response);
+        }, success(response){   
+            $("#cidade").html(response);
+           
 
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-            console.log(xhr, ajaxOptions, thrownError);
-            $("#msgClima").html('<div class="alert alert-danger fade in"><button class="close" data-dismiss="alert">×</button><i class="fa-fw fa fa-times"></i><strong>ATENÇÃO!</strong> Ocorreu um erro ao tentar enviar a pergunta. Contate o suporte técnico.</div>');
-        }
+       },
+       error: function(xhr, ajaxOptions, thrownError) {
+           console.log(xhr, ajaxOptions, thrownError);
+           $("#msgClima").html('<div class="alert alert-danger fade in"><button class="close" data-dismiss="alert">×</button><i class="fa-fw fa fa-times"></i><strong>ATENÇÃO!</strong> Ocorreu um erro ao tentar enviar a pergunta. Contate o suporte técnico.</div>');
+       }
     });
  });
 
@@ -79,26 +79,41 @@ $(document).on('change', '#estado', function(){
   */
 
 
-$('#cnaes').click(function(){
-    $('#exampleModalCenterCNAE').modal('toggle');
-})
-
-$('#cnaes_close').click(function(){
-    $('#exampleModalCenterCNAE').modal('hide');
-})
-
-$('#emails').click(function(){
-    $('#exampleModalCenterEmails').modal('toggle');
-})
-
-$('#emails_close').click(function(){
-    $('#exampleModalCenterEmails').modal('hide');
-})
-
-$('#telefones').click(function(){
-    $('#exampleModalCenterTelefone').modal('toggle');
-})
-
-$('#telefones_close').click(function(){
-    $('#exampleModalCenterTelefone').modal('hide');
-})
+       $(document).on('click', '#emails', function(){ 
+        $( "#email" ).clone().appendTo( ".email-modal" ); 
+    
+     });
+    
+     $(document).on('click', '#telefones', function(){ 
+        $( "#telefone" ).clone().appendTo( ".tel-modal" ); 
+    
+     });
+    
+     $(document).on('click', '#cnaes_secundarios', function(){ 
+        $( "#cnae_secundarios" ).clone().appendTo( ".cnae-modal" ); 
+    
+     });
+    
+     $('#cnaes_secundarios').click(function(){
+        $('#exampleModalCenterCNAE').modal('toggle');
+    })
+    
+    $('.cnaes_close').click(function(){
+        $('#exampleModalCenterCNAE').modal('hide');
+    })
+    
+    $('#emails').click(function(){
+        $('#exampleModalCenterEmails').modal('toggle');
+    })
+    
+    $('.emails_close').click(function(){
+        $('#exampleModalCenterEmails').modal('hide');
+    })
+    
+    $('#telefones').click(function(){
+        $('#exampleModalCenterTelefone').modal('toggle');
+    })
+    
+    $('.telefones_close').click(function(){
+        $('#exampleModalCenterTelefone').modal('hide');
+    })

@@ -117,7 +117,7 @@ class ClassesWeb {
 
     function busca_clientes_erp() {
         $this->pdo = new Connection();
-        $query = "SELECT *,clientes_erp_tel.nome_responsavel AS cli_tel, clientes_erp.hash AS clientes_erp_hash  FROM clientes_erp INNER JOIN clientes_erp_tel ON clientes_erp.telefone = clientes_erp_tel.hash WHERE status <> 'Inativo'";
+        $query = "SELECT *,(SELECT telefone FROM clientes_erp_tel LIMIT 1) AS cli_tel FROM clientes_erp WHERE status <> 'Inativo'";
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
@@ -179,7 +179,7 @@ class ClassesWeb {
 
     function busca_fornecedores() {
         $this->pdo = new Connection();
-        $query = "SELECT * FROM fornecedores WHERE status <> 'Inativo'";
+        $query = "SELECT *,(SELECT telefone FROM fornecedores_telefone LIMIT 1) AS forn_tel FROM fornecedores WHERE status <> 'Inativo'";
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
@@ -216,7 +216,7 @@ class ClassesWeb {
 
     function busca_cidade() {
         $this->pdo = new Connection();
-        $query = "SELECT * FROM cidade ORDER BY nome ASC";
+        $query = "SELECT * FROM cidades ORDER BY nome ASC";
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
@@ -268,6 +268,22 @@ class ClassesWeb {
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $exc) {
+            echo $exc->getMessage();
+        }
+        return $result;
+    }
+
+    /**
+     * BUSCA EMAIL NA TABELA DE USUARIOS  
+     */
+    function consulta_email_clientes_erp($hash_email) {
+        $this->pdo = new Connection();
+        $query = "SELECT email FROM clientes_erp_email WHERE hash = " . $hash_email ."";
+        try {
+            $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         } catch (PDOException $exc) {

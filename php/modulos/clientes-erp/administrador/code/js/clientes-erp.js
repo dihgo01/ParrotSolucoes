@@ -21,8 +21,36 @@ $(document).on('change', '#estado', function(){
     });
  });
 
- $(document).on('click', '.add_cnae', function(){ 
-    $( "#cnae_secundarios" ).clone().appendTo( ".cnae-sec" );
-    
+ $(document).on('click', '#emails', function(){ 
+    $( "#email" ).clone().appendTo( ".form-email" ); 
 
  });
+
+ $(document).on('click', '#dados-pessoa', function(){ 
+    $( "#form-pessoa" ).clone().appendTo( "#form-dados-pessoa" ); 
+
+ });
+
+ $('#cnaes_secundarios').click(function(){
+    $('#exampleModalCenterCNAE').modal('toggle');
+})
+
+$('.cnaes_close').click(function(){
+    $('#exampleModalCenterCNAE').modal('hide');
+})
+
+$('#emails').click(function(){
+    $('#exampleModalCenterEmails').modal('toggle');
+})
+
+$('.emails_close').click(function(){
+    $('#exampleModalCenterEmails').modal('hide');
+})
+
+$('#telefones').click(function(){
+    $('#exampleModalCenterTelefone').modal('toggle');
+})
+
+$('.telefones_close').click(function(){
+    $('#exampleModalCenterTelefone').modal('hide');
+})

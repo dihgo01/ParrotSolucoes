@@ -20,143 +20,151 @@ if ($acao === 'gestao_clientes_erp') {
         /**
          * Insere um novo cliente erp
          */
-     
 
-            $hash_cnae_secundarios = gerar_hash();
-            $hash_email = gerar_hash();
-            $hash_telefone = gerar_hash();
 
-            $campos = array(
-                'hash',
-                'razao_social',
-                'nome_fantasia',
-                'dt_abertura',
-                'cnpj',
-                'inscricao_estadual',
-                'inscricao_municipal',
-                'empresa_porte',
-                'cnae',
-                'cnae_secundarios',
-                'natureza_juridica',
-                'email',
-                'telefone',
-                'cep',
-                'endereco',
-                'numero',
-                'complemento',
-                'bairro',
-                'cidade',
-                'estado',
-                'pais',
-                'dt_cadastro',
-                'status',
-            );
+        $hash_cnae_secundarios = gerar_hash();
+        $hash_email = gerar_hash();
+        $hash_telefone = gerar_hash();
 
-            $valores = array(
-                gerar_hash(),
-                $_POST['razao_social'],
-                $_POST['nome_fantasia'],
-                $_POST['dt_abertura'],
-                $_POST['cnpj'],
-                $_POST['inscricao_estadual'],
-                $_POST['inscricao_municipal'],
-                $_POST['empresa_porte'],
-                $_POST['cnae'],
-                $hash_cnae_secundarios,
-                $_POST['natureza_juridica'],
-                $hash_email,
-                $hash_telefone,
-                $_POST['cep'],
-                $_POST['logradouro'],
-                $_POST['numero'],
-                $_POST['complemento'],
-                $_POST['bairro'],
-                $_POST['cidade'],
-                $_POST['estado'],
-                $_POST['pais'],
-                date("Y-m-d H:i:s"),
-                'Ativo'
-            );
-            foreach ($campos as $CAMPOS_INSERT) {
-                $variaveis[] = '?';
-            }
+        /*
+         * Inserir data formatada no banco
+         */
+        $data_nascimento = $_POST['dt_abertura'];
+        $tratamento_data_abertura = implode('-', array_reverse(explode('/', $data_nascimento)));
+        
 
-            /*
+        $campos = array(
+            'hash',
+            'razao_social',
+            'nome_fantasia',
+            'dt_abertura',
+            'cnpj',
+            'inscricao_estadual',
+            'inscricao_municipal',
+            'empresa_porte',
+            'cnae',
+            'cnae_secundarios',
+            'natureza_juridica',
+            'email',
+            'telefone',
+            'cep',
+            'endereco',
+            'numero',
+            'complemento',
+            'bairro',
+            'cidade',
+            'estado',
+            'pais',
+            'dt_cadastro',
+            'status',
+        );
+
+        $valores = array(
+            gerar_hash(),
+            $_POST['razao_social'],
+            $_POST['nome_fantasia'],
+            $tratamento_data_abertura,
+            $_POST['cnpj'],
+            $_POST['inscricao_estadual'],
+            $_POST['inscricao_municipal'],
+            $_POST['empresa_porte'],
+            $_POST['cnae'],
+            $hash_cnae_secundarios,
+            $_POST['natureza_juridica'],
+            $hash_email,
+            $hash_telefone,
+            $_POST['cep'],
+            $_POST['logradouro'],
+            $_POST['numero'],
+            $_POST['complemento'],
+            $_POST['bairro'],
+            $_POST['cidade'],
+            $_POST['estado'],
+            $_POST['pais'],
+            date("Y-m-d H:i:s"),
+            'Ativo'
+        );
+        foreach ($campos as $CAMPOS_INSERT) {
+            $variaveis[] = '?';
+        }
+
+        /*
              * Insere os dados na tabela cnae clientes erp
              */
 
-            if (isset($_POST['cnae_secundarios']) && array($_POST['cnae_secundarios']) && !empty($_POST['cnae_secundarios'])) {
-                $variavel = array();
-                $campo = array('hash', 'cliente_nome', 'cnae_secundario',);
-                foreach ($campo as $CAMPOS_INSERT) {
-                    $variavel[] = '?';
-                }
-                //var_dump($_POST['cnae_secundarios']);
-                foreach ($_POST['cnae_secundarios'] as $VALUE) {
-                    
-                    $valor = array($hash_cnae_secundarios, $_POST['nome_fantasia'], $VALUE);
-                    $cnae_sec = $classesWeb->query_insert(implode(', ', $campo), implode(', ', $variavel), $valor, 'clientes_erp_cnae');
-                    
-                };
+        if (isset($_POST['cnae_secundarios']) && array($_POST['cnae_secundarios']) && !empty($_POST['cnae_secundarios'])) {
+            $variavel = array();
+            $campo = array('hash', 'cliente_nome', 'cnae_secundario' ,'status');
+            foreach ($campo as $CAMPOS_INSERT) {
+                $variavel[] = '?';
             }
+            //var_dump($_POST['cnae_secundarios']);
+            foreach ($_POST['cnae_secundarios'] as $VALUE) {
 
-            /*
+                $valor = array($hash_cnae_secundarios, $_POST['nome_fantasia'], $VALUE,'Ativo');
+                $cnae_sec = $classesWeb->query_insert(implode(', ', $campo), implode(', ', $variavel), $valor, 'clientes_erp_cnae');
+            };
+        }
+
+        /*
              * Insere os dados na tabela email clientes erp
              */
 
-            if (isset($_POST['email']) && array($_POST['email']) && !empty($_POST['email'])) {
-                $variavel = array();
-                $campo = array('hash', 'email',);
-                foreach ($campo as $CAMPOS_INSERT) {
-                    $variavel[] = '?';
-                }
-                //var_dump($_POST['cnae_secundarios']);
-                foreach ($_POST['email'] as $VALUE) {
-                    
-                    $valor = array($hash_email, $VALUE);
-                    $email = $classesWeb->query_insert(implode(', ', $campo), implode(', ', $variavel), $valor, 'clientes_erp_email');
-                    
-                };
+        if (isset($_POST['email']) && array($_POST['email']) && !empty($_POST['email'])) {
+            $variavel = array();
+            $campo = array('hash', 'email','setor','responsavel' ,'status');
+            foreach ($campo as $CAMPOS_INSERT) {
+                $variavel[] = '?';
             }
+            //var_dump($_POST['cnae_secundarios']);
+            $valor = array($hash_email, $VALUE, $SETOR, $RESPONSAVEL,'Ativo');
+            for ($i = 0; $i < (int) sizeof($_POST['email']); $i++) {
+                $campos[$i] = $campos[$i] . ' = ?';
+            } {
+                        $valor = array($hash_email, $VALUE, $SETOR, $RESPONSAVEL,'Ativo');
+                         $email = $classesWeb->query_insert(implode(', ', $campo), implode(', ', $variavel), $valor, 'clientes_erp_email');
+                    }   
+                }
+            };
+        }
 
-            /*
+        /*
              * Insere os dados na tabela telefones clientes erp
              */
 
-            if (isset($_POST['telefone']) && array($_POST['telefone']) && !empty($_POST['telefone'])) {
-                $variavel = array();
-                $campo = array('hash', 'setor','nome_responsavel');
-                foreach ($campo as $CAMPOS_INSERT) {
-                    $variavel[] = '?';
-                }
-                //var_dump($_POST['cnae_secundarios']);
-                foreach ($_POST['telefone'] as $VALUE) {
-                    
-                    $valor = array($hash_telefone ,$_POST['nome_fantasia'], $VALUE);
-                    $telefone = $classesWeb->query_insert(implode(', ', $campo), implode(', ', $variavel), $valor, 'clientes_erp_tel');
-                    
-                };
+        if (isset($_POST['telefone']) && array($_POST['telefone']) && !empty($_POST['telefone'])) {
+            $variavel = array();
+            $campo = array('hash', 'setor', 'nome_responsavel', 'telefone', 'status');
+            foreach ($campo as $CAMPOS_INSERT) {
+                $variavel[] = '?';
             }
+            //var_dump($_POST['cnae_secundarios']);
+            foreach ($_POST['telefone'] as $VALUE) {
+
+                $valor = array($hash_telefone, $_POST['setor'], $_POST['nome_pessoa'], $VALUE, 'Ativo');
+
+                $telefone = $classesWeb->query_insert(implode(', ', $campo), implode(', ', $variavel), $valor, 'clientes_erp_tel');
+            };
+        }
 
 
 
 
-            $insert = $classesWeb->query_insert(implode(', ', $campos), implode(', ', $variaveis), $valores, 'clientes_erp');
-            if ((int) $insert > 0) {
-                echo json_encode(array(
-                    'status' => 'OK',
-                    'message' => 'Cliente ERP cadastrado com sucesso.',
-                    'type' => 'redirect',
-                    'url' => WEBURL . 'gerenciamento/clientes-erp'
-                ));
-            } else {
-                echo json_encode(array(
-                    'status' => 'ERROR',
-                    'message' => 'Ocorreu um erro durante o processo. Tente novamente.',
-                    'type' => 'close'
-                ));
-            }
-        
+        $insert = $classesWeb->query_insert(implode(', ', $campos), implode(', ', $variaveis), $valores, 'clientes_erp');
+        if ((int) $insert > 0) {
+            echo json_encode(array(
+                'status' => 'OK',
+                'message' => 'Cliente ERP cadastrado com sucesso.',
+                'type' => 'redirect',
+                'url' => WEBURL . 'gerenciamento/clientes-erp'
+            ));
+        } else {
+            echo json_encode(array(
+                'status' => 'ERROR',
+                'message' => 'Ocorreu um erro durante o processo. Tente novamente.',
+                'type' => 'close'
+            ));
+        }
     } else {
 
         /**
@@ -166,6 +174,10 @@ if ($acao === 'gestao_clientes_erp') {
         $hash_cnae_secundarios = gerar_hash();
         $hash_email = gerar_hash();
         $hash_telefone = gerar_hash();
+
+        $data_nascimento = $_POST['dt_abertura'];
+        $tratamento_data_abertura = implode('-', array_reverse(explode('/', $data_nascimento)));
+        
 
         $campos = array(
             'razao_social',
@@ -192,7 +204,7 @@ if ($acao === 'gestao_clientes_erp') {
 
         );
 
-         
+
         $valores = array(
             $_POST['razao_social'],
             $_POST['nome_fantasia'],
@@ -202,7 +214,7 @@ if ($acao === 'gestao_clientes_erp') {
             $_POST['inscricao_municipal'],
             $_POST['empresa_porte'],
             $_POST['cnae'],
-           // $_POST['cnae_secundarios'],
+            // $_POST['cnae_secundarios'],
             $_POST['natureza_juridica'],
             $_POST['email'],
             $_POST['telefone'],
@@ -236,7 +248,7 @@ if ($acao === 'gestao_clientes_erp') {
             };
         } */
 
-        
+
         $update = $classesWeb->query_update(implode(', ', $campos), $valores, 'clientes_erp', 'hash = "' . $_GET['key'] . '"');
         if ((int) $update > 0) {
             echo json_encode(array(
